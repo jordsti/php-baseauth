@@ -1,0 +1,30 @@
+<?php
+require_once("actions/LoginAction.php");
+
+$action = new LoginAction();
+$action->execute();
+
+?>
+<html>
+  <head>
+    <title>Invoice Master - Login</title>
+  </head>
+  <body>
+    <div>
+      <h2>Please authenticate yourself</h2>
+    </div>
+    <div>
+      <form method="POST" action="login.php">
+	<div>
+	  <label>Username : </label>
+	  <input type="text" name="username" />
+	</div>
+	  <label>Password : </label>
+	  <input type="password" name="password" />
+	<div>
+	</div>
+	<button type="submit">Log in</button>
+      </form>
+    </div>
+  </body>
+</html>

@@ -19,6 +19,21 @@ class User {
     $this->id = 0;
   }
   
+  public function copy()
+  {
+	  $copy = new User();
+	  $copy->id = $this->id;
+	  $copy->username = $this->username;
+	  $copy->firstName = $this->firstName;
+	  $copy->lastName = $this->lastName;
+	  $copy->salt = $this->salt;
+	  $copy->password = $this->password;
+	  $copy->hashType = $this->hashType;
+	  $copy->createdOn = $this->createdOn;
+	  $copy->email = $this->email;
+	  return $copy;
+  }
+  
   public function isNull()
   {
     return $this->id == 0;

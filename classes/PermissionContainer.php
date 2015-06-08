@@ -28,6 +28,11 @@ class PermissionContainer
     return $permission_int;
   }
   
+  public function getPermissions()
+  {
+	  return $this->permissions;
+  }
+  
   public function getPermissionByName($name)
   {
     foreach($this->permissions as $perm)
@@ -39,6 +44,21 @@ class PermissionContainer
     }
     
     return new Permission();
+  }
+  
+  public function highestValue()
+  {
+	  $value = 0;
+	  
+	  foreach($this->permissions as $perm)
+	  {
+		  if($perm->value > $value)
+		  {
+			  $value = $perm->value;
+		  }
+	  }
+	  
+	  return $value;
   }
   
   public function testPermission($name, $user_permissions)

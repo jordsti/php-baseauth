@@ -5,6 +5,40 @@ require_once("database/DbConnection.php");
 
 class DbUser
 {
+	public static function Add($username, $salt, $hashType, $password, $firstName, $lastName, $email)
+	{
+		$con = new DbConnection();
+		$stamp = time();
+		
+		$u_hash = hash($hashType, $salt.$password);
+		
+		$query = "INSERT INTO users (username, salt, hash_type, password, first_name, last_name, email, created_on) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+		
+		$st = $con->prepare($query);
+		$st->bind_param("sssssssi", $username, $salt, $hashType, $u_hash, $firstName, $lastName, $email, $stamp);
+		$st->execute();
+		$con->close();
+	}
+	
+	public static function Update($user)
+	{
+		if(!$user->isNull())
+		{
+			$user_id = $user->id;
+			$firstName = $user->firstName;
+			$lastName = $user->lastName;
+			$email = $user->email;
+			
+			$con = new DbConnection();
+			
+			$query = "UPDATE users SET first_name = ?, last_name = ?, email = ? WHERE user_id = ?";
+			$st = $con->prepare($query);
+			$st->bind_param("sssi", $firstName, $lastName, $email, $user_id);
+			$st->execute();
+			$con->close();
+			
+		}
+	}
  
 	public static function Get($count=100, $offset=0)
 	{
@@ -133,7 +167,7 @@ class DbUser
     
     return $user;
   }
-  
+
   public static function GetById($user_id)
   {
     $user = new User();

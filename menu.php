@@ -9,16 +9,25 @@
 if($action->isLogged())
 {
 ?>
-  <li><a href="#">Dashboard</a></li>
+  <li><a href="index.php">Dashboard</a></li>
   
 <?php
   if($action->testPermission("manage_users"))
   {
   ?>
-  <li><a href="users.php">Manage users</a></li>
+  <li><a href="users.php">Users</a></li>
   <?php
   }  
 ?>
+<?php
+  if($action->testPermission("manage_groups"))
+  {
+  ?>
+  <li><a href="groups.php">Groups</a></li>
+  <?php
+  }  
+?>
+
   <li><a href="logout.php">Log out</a></li>
 <?php
 }
@@ -27,3 +36,18 @@ if($action->isLogged())
   </ul>
   </div>
 </nav>
+<!-- Alerts section -->
+<?php
+if($action->containsAlert())
+{
+?>
+<div class="row">
+	<div class="container col-sm-6 col-sm-offset-2" id="alerts">
+		<?php
+		$action->renderAlerts();
+		?>
+	</div>
+</div>
+<?php
+}
+?>

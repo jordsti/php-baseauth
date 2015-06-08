@@ -39,9 +39,16 @@ CREATE TABLE IF NOT EXISTS `users_groups` (
   PRIMARY KEY(`user_group_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-
+-- Adding Default Admin User #
 INSERT INTO `users` (`user_id`, `username`, `first_name`, `last_name`, `salt`, `password`, `hash_type`, `email`, `created_on`) VALUES (1, 'admin', 'Admin', '', '', 'admin', 'clear', 'admin@invoice-master', 0);
+-- Adding all default permissions #
 INSERT INTO `permissions` (`permission_id`, `permission_name`, `permission_value`, `permission_description`) VALUES (1, 'manage_users', 0, 'Create, delete and update users');
+INSERT INTO `permissions` (`permission_id`, `permission_name`, `permission_value`, `permission_description`) VALUES (2, 'manage_groups', 1, 'Create, delete and update groups');
+INSERT INTO `permissions` (`permission_id`, `permission_name`, `permission_value`, `permission_description`) VALUES (3, 'manage_permissions', 2, 'Create, delete and update permissions');
+-- Creating the Admin group #
 INSERT INTO `groups` (`group_id`, `group_name`) VALUES (1, 'Admin');
 INSERT INTO `groups_permissions` (`group_id`, `permission_id`) VALUES (1, 1);
+INSERT INTO `groups_permissions` (`group_id`, `permission_id`) VALUES (1, 2);
+INSERT INTO `groups_permissions` (`group_id`, `permission_id`) VALUES (1, 3);
+-- Adding the admin to the admin group #
 INSERT INTO `users_groups` (`user_id`, `group_id`) VALUES (1, 1);

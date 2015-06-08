@@ -1,6 +1,7 @@
 <?php
 
 require_once("classes/User.php");
+require_once("classes/Alert.php");
 require_once("database/DbUser.php");
 require_once("database/DbPermission.php");
 require_once("database/DbGroup.php");
@@ -25,69 +26,144 @@ class BaseAction
 	protected $userPermissions;
 	protected $title;
 	protected $constraints;
+	protected $alerts;
+	protected $alertRenderer;
   
-  protected function getConstraint($c_name)
-  {
-    foreach($this->constraints as $c)
-    {
-      if(strcmp($c->name, $c_name) == 0)
-      {
-	return $c;
-      }
-    }
-    
-    return 0;
-  }
+	protected function getConstraint($c_name)
+	{
+		foreach($this->constraints as $c)
+		{
+			if(strcmp($c->name, $c_name) == 0)
+			{
+				return $c;
+			}
+		}
+
+		return 0;
+	}
   
-  public function __construct($constraints=array())
-  {
-    $this->constraints = $constraints;
-    $this->user = new User();
-	//todo
-	//do some methhods for getBoolConstraint, and other data type
-	$no_redirect = $this->getConstraint('no_redirect');
-	if(is_int($no_redirect))
+	public function renderAlerts()
 	{
-		$no_redirect = false;
+		foreach($this->alerts as $alert)
+		{
+			echo $this->alertRenderer->render($alert);
+		}
+		
+		$this->alerts = array();
 	}
-	else
+	
+	public function getPermissions()
 	{
-		$no_redirect = $no_redirect->value;
+		return $this->permissions;
 	}
-    
-    if(isset($_SESSION['user_id']))
-    {
-		$user_id = $_SESSION['user_id'];
-		$this->user->id = $user_id;
-		$user = DbUser::GetById($user_id);
+	
+	public function containsAlert()
+	{
+		return count($this->alerts) > 0;
+	}
+	
+	public function pushAlert($alert)
+	{
+		//push add the alert to the session vars
+		if(isset($_SESSION['alerts']))
+		{
+			$alerts = $_SESSION['alerts'];
+			$alerts[] = $alert;
+		}
+		else
+		{
+			$alerts = array();
+			$alerts[] = $alert;
+			$_SESSION['alerts'] = $alerts; 
+		}
+	}
+	
+	public function addAlert($alert)
+	{
+		$this->alerts[] = $alert;
+	}
+	
+	protected function reloadPermissions()
+	{
 		$perms = DbPermission::GetAll();
 		$this->permissions = new PermissionContainer($perms);
-      
-		if(!$user->isNull())
-		{
-			$this->user = $user;
-			//loading permissions
-			$userPermissions = DbGroup::GetUserPermissions($this->user->id);
-			$this->userPermissions = $userPermissions->getPermissionsInt();
+	}
 	
-			if($this->user->isClearPassword())
+	public function clearAlerts()
+	{
+		$_SESSION['alerts'] = array();
+	}
+  
+	public function __construct($constraints=array())
+	{
+		$this->alerts = array();
+		$this->alertRenderer = new AlertRenderer();
+		
+		if(isset($_SESSION['alerts']))
+		{
+			//fetching alerts
+			//clearing them when they are show
+			$this->alerts = $_SESSION['alerts'];
+		}
+
+		$this->constraints = $constraints;
+		$this->user = new User();
+		//todo
+		//do some methhods for getBoolConstraint, and other data type
+		$no_redirect = $this->getConstraint('no_redirect');
+		
+		if(is_int($no_redirect))
+		{
+			$no_redirect = false;
+		}
+		else
+		{
+			$no_redirect = $no_redirect->value;
+		}
+
+		if(isset($_SESSION['user_id']))
+		{
+			$user_id = $_SESSION['user_id'];
+			$this->user->id = $user_id;
+			$user = DbUser::GetById($user_id);
+			$perms = DbPermission::GetAll();
+			$this->permissions = new PermissionContainer($perms);
+
+			if(!$user->isNull())
 			{
-				//force a password change
-				//todo
-				$no_change = $this->getConstraint("no_change_password");
-				if(!is_int($no_change))
+				$this->user = $user;
+				//loading permissions
+				$userPermissions = DbGroup::GetUserPermissions($this->user->id);
+				$this->userPermissions = $userPermissions->getPermissionsInt();
+
+				if($this->user->isClearPassword())
 				{
-					if(!$no_change->value)
+					//force a password change
+					//todo
+					$no_change = $this->getConstraint("no_change_password");
+					if(!is_int($no_change))
 					{
-					  header('location: change_password.php');
+						if(!$no_change->value)
+						{
+							header('location: change_password.php');
+						}
+					}
+					else
+					{
+						header('location: change_password.php');
 					}
 				}
-				else
+
+			}
+			else
+			{
+				//sending the user directly to the login
+				if(!$no_redirect)
 				{
-					header('location: change_password.php');
+					header('location: login.php');
 				}
 			}
-	
+
 		}
 		else
 		{
@@ -97,26 +173,15 @@ class BaseAction
 				header('location: login.php');
 			}
 		}
-      
-    }
-	else
-	{
-		//sending the user directly to the login
-		if(!$no_redirect)
-		{
-			header('location: login.php');
-		}
+
+
 	}
-    
-    
-  }
 
 	public function mustHavePermission($perm_name)
 	{
 		if(!$this->permissions->testPermission($perm_name, $this->userPermissions))
 		{
-			//with a error message
-			//todo notification
+			$this->pushAlert(Alert::CreateWarning('Warning', 'You don\'t have the permission do to this.'));			
 			header('location: index.php');
 		}
 	}
@@ -135,10 +200,20 @@ class BaseAction
 	{
 
 	}
+	
+	public function reexecute($vars=array())
+	{
+		foreach($vars as $n => $v)
+		{
+			$_GET[$n] = $v;
+		}
+		
+		$this->execute();
+	}
   
 	public function isLogged()
 	{
-		return $this->user->id != 0;
+		return !$this->user->isNull();
 	}
   
 	public function getUser()

@@ -24,6 +24,11 @@ class Group
     }
   }
   
+  public function setId($id)
+  {
+	  $this->id = $id;
+  }
+  
   public function isNull()
   {
     return $this->id == 0;

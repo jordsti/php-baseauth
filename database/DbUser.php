@@ -6,6 +6,42 @@ require_once("database/DbConnection.php");
 class DbUser
 {
  
+	public static function Get($count=100, $offset=0)
+	{
+		$users = array();
+		
+		$con = new DbConnection();
+		$query = "SELECT user_id, username, first_name, last_name, salt, password, hash_type, email, created_on FROM users ORDER BY user_id LIMIT ?, ?";
+		
+		$start = $offset;
+		$end = $start + $count;
+		
+		$st = $con->prepare($query);
+		$st->bind_param("ii", $start, $end);
+		$st->bind_result($u_id, $u_name, $u_firstName, $u_lastName, $u_salt, $u_password, $u_hashType, $u_email, $u_createdOn);
+		$st->execute();
+		
+		while($st->fetch())
+		{
+			$user = new User();
+			$user->id = $u_id;
+			$user->username = $u_name;
+			$user->firstName = $u_firstName;
+			$user->lastName = $u_lastName;
+			$user->salt = $u_salt;
+			$user->password = $u_password;
+			$user->hashType = $u_hashType;
+			$user->email = $u_email;
+			$user->createdOn = $u_createdOn;
+			
+			$users[] = $user;
+		}
+		
+		$con->close();
+		
+		return $users;
+	}
+ 
   public static function IsUsernameOrEmailExists($username, $email)
   {
     $exists = false;

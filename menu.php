@@ -15,7 +15,7 @@ if($action->isLogged())
   if($action->testPermission("manage_users"))
   {
   ?>
-  <li><a href="#">Manage users</a></li>
+  <li><a href="users.php">Manage users</a></li>
   <?php
   }  
 ?>

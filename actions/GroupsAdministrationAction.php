@@ -10,9 +10,11 @@ class GroupsAdministrationAction extends BaseAction
 	public static $BrowsePermissions = 3;
 	public static $EditPermissionForm = 4;
 	public static $NewPermissionForm = 5;
+	public static $EditGroupForm = 6;
 	
 	public $view;
 	public $groups;
+	public $group;
 	public $permission;
 
 	public function __construct()
@@ -20,6 +22,7 @@ class GroupsAdministrationAction extends BaseAction
 		parent::__construct();
 		
 		$this->groups = array();
+		$this->group = new Group();
 		$this->permission = new Permission();
 			
 		$this->mustHavePermission('manage_groups');
@@ -165,6 +168,65 @@ class GroupsAdministrationAction extends BaseAction
 			}
 			
 			$this->reexecute(array('action' => 'permissions'));
+		}
+		else if(strcmp($action, 'edit_group') == 0)
+		{
+			if(isset($_GET['group_id']))
+			{
+				$this->group = DbGroup::GetById($_GET['group_id']);
+				$this->view = GroupsAdministrationAction::$EditGroupForm;
+			}
+			else
+			{
+				$this->reexecute(array('action' => 'browse'));
+			}
+		}
+		else if(strcmp($action, 'save_group') == 0)
+		{
+			if(isset($_POST['group_id']) && 
+				isset($_POST['group_name']))
+			{
+				$group_id = $_POST['group_id'];
+				$group_name = $_POST['group_name'];
+				
+				$perm_id = array();
+				$permissions = $this->permissions->getPermissions();
+				
+				foreach($permissions as $perm)
+				{
+					echo $perm->name;
+					if(isset($_POST[$perm->name]))
+					{
+						$value = $_POST[$perm->name];
+						if(strcmp($value, 'on') == 0)
+						{
+							$perm_id[] = $perm->id;
+						}
+					}
+				}
+				
+				$group = DbGroup::GetById($group_id);
+				if(!$group->isNull())
+				{
+					$group->name = $group_name;
+					DbGroup::Update($group);
+					
+					DbGroup::RemovePermissions($group->id);
+					
+					foreach($perm_id as $p_id)
+					{
+						DbGroup::AddPermission($group->id, $p_id);
+					}
+					
+					$this->addAlert(Alert::CreateSuccess('Success', 'Group modified.'));
+				}
+				else
+				{
+					$this->addAlert(Alert::CreateDanger('Error', 'Invalid Group'));
+				}
+			}
+			
+			$this->reexecute(array('action' => 'browse'));
 		}
 	}
 

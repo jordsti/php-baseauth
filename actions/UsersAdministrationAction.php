@@ -12,6 +12,7 @@ class UsersAdministrationAction extends BaseAction
 	public $users;
 	public $pageUser;
 	public $userGroups;
+	public $groups;
 	
 	public function __construct()
 	{
@@ -23,6 +24,19 @@ class UsersAdministrationAction extends BaseAction
 		$this->mustHavePermission('manage_users');
 		$this->users = array();
 		$this->pageUser = new User();
+	}
+	
+	public function userContainsGroup($group)
+	{
+		foreach($this->userGroups as $ug)
+		{
+			if($ug->id == $group->id)
+			{
+				return true;
+			}
+		}
+		
+		return false;
 	}
 	
 	public function execute()
@@ -62,6 +76,7 @@ class UsersAdministrationAction extends BaseAction
 			if(isset($_GET['user_id']))
 			{
 				$this->pageUser = DbUser::GetById($_GET['user_id']);
+				$this->groups = DbGroup::GetAll();
 				
 				if(!$this->pageUser->isNull())
 				{
@@ -173,7 +188,7 @@ class UsersAdministrationAction extends BaseAction
 				$this->reexecute(array('action' => 'browse'));
 			}
 		}
-		else if(strcmp($action, 'change_password'))
+		else if(strcmp($action, 'change_password') == 0)
 		{
 			if(isset($_POST['user_id']) &&
 				isset($_POST['password']) &&
@@ -197,6 +212,28 @@ class UsersAdministrationAction extends BaseAction
 					$this->addAlert(Alert::CreateWarning('Warning', 'Password mismatches.'));
 					$this->reexecute(array('action' => 'edit_user', 'user_id' => $user_id));
 				}
+			}
+			else
+			{
+				$this->reexecute(array('action' => 'browse'));
+			}
+		}
+		else if(strcmp($action, 'add_user_group') == 0)
+		{
+			if(isset($_POST['user_id']) && 
+				isset($_POST['group_id']))
+			{
+				$u_id = $_POST['user_id'];
+				$g_id = $_POST['group_id'];
+				
+				//for safety purpose
+				DbGroup::RemoveUser($g_id, $u_id);
+				
+				DbGroup::AddUser($g_id, $u_id);
+			
+				$this->addAlert(Alert::CreateSuccess('Success', 'User added to the group.'));
+			
+				$this->reexecute(array('action' => 'edit_user', 'user_id' => $_POST['user_id']));	
 			}
 			else
 			{

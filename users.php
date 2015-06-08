@@ -19,16 +19,18 @@ if($action->view == UsersAdministrationAction::$BrowseUsers)
 	?>
 	<div class="container">
 		<table class="table table-striped">
+			<thead>
 			<tr>
-				<td>ID</td>
-				<td>Username</td>
-				<td>First Name</td>
-				<td>Last Name</td>
-				<td>Email</td>
-				<td>Created On</td>
-				<td>Actions</td>
+				<th>ID</th>
+				<th>Username</th>
+				<th>First Name</th>
+				<th>Last Name</th>
+				<th>Email</th>
+				<th>Created On</th>
+				<th>Actions</th>
 			</tr>
-			
+			</thead>
+			<tbody>
 			<?php
 				foreach($action->users as $u)
 				{
@@ -45,7 +47,7 @@ if($action->view == UsersAdministrationAction::$BrowseUsers)
 				<?php
 				}
 			?>
-			
+			</tbody>
 		</table>
 	</div>
 	<?php
@@ -98,11 +100,38 @@ else if($action->view == UsersAdministrationAction::$EditUserForm)
 			<h4>User Groups</h4>
 			<div class="col-sm-8">
 				<div class="row">
+					<div class="col-sm-8">
+						<h4>Add a group</h4>
+						<form method="post" action="users.php?action=add_user_group" role="form">
+							<div class="form-group col-sm-8">
+								<input type="hidden" name="user_id" value="<?php echo $action->pageUser->id; ?>" />
+								<label for="group_id">Group</label>
+								<select name="group_id" id="group_id" class="form-control">
+									<?php
+									foreach($action->groups as $group)
+									{
+										if(!$action->userContainsGroup($group))
+										{
+											?>
+											<option value="<?php echo $group->id; ?>"><?php echo $group->name; ?></option>
+											<?php
+										}
+									}
+									?>
+								</select>
+							</div>
+							<div class="form-group col-sm-8 col-sm-offset-1">
+								<button type="submit" class="btn btn-default">Add</button>
+							</div>
+						</form>
+					</div>
+				</div>
+				<div class="row">
 					<div class="col-sm-6">
-					Group
+					<h4>Group</h4>
 					</div>
 					<div class="col-sm-6">
-					Permission(s)
+					<h4>Permission(s)</h4>
 					</div>
 				</div>
 				
@@ -119,9 +148,12 @@ else if($action->view == UsersAdministrationAction::$EditUserForm)
 							<?php
 							foreach($group->permissions->getPermissions() as $perm)
 							{
+								if(!$perm->isNull())
+								{
 								?>
 								<li><?php echo $perm->name; ?></li>
 								<?php
+								}
 							}
 							?>
 							</ul>

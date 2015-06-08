@@ -28,14 +28,16 @@ if($action->view == GroupsAdministrationAction::$BrowseGroups)
 {
 	?>
 	<div class="container col-sm-10 col-sm-offset-1">
-		<table class="table table-stripped">
-			<tr>
-				<td>Id</td>
-				<td>Name</td>
-				<td>Permissions</td>
-				<td>Action(s)</td>
-			</tr>
-			
+		<table class="table table-striped">
+			<thead>
+				<tr>
+					<th>Id</th>
+					<th>Name</th>
+					<th>Permissions</th>
+					<th>Action(s)</th>
+				</tr>
+			</thead>
+			<tbody>
 			<?php
 			foreach($action->groups as $group)
 			{
@@ -57,13 +59,13 @@ if($action->view == GroupsAdministrationAction::$BrowseGroups)
 					</td>
 					<td>
 						<button type="button" class="btn btn-default" href="#">Delete</button>
-						<button type="button" class="btn btn-default" href="groups.php?action=edit_group&group_id=<?php echo $group->id; ?>">Edit</button>
+						<a class="btn btn-default" href="groups.php?action=edit_group&group_id=<?php echo $group->id; ?>">Edit</a>
 					</td>
 				</tr>
 				<?php
 			}
 			?>
-			
+			</tbody>
 		</table>
 	</div>
 	<?php
@@ -114,15 +116,17 @@ else if($action->view == GroupsAdministrationAction::$BrowsePermissions)
 	</div>
 	<div class="row">
 		<h4>Permissions</h4>
-		<table class="table table-stripped">
+		<table class="table table-striped">
+			<thead>
 			<tr>
-				<td>Id</td>
-				<td>Name</td>
-				<td>Value</td>
-				<td>Description</td>
-				<td>Actions</td>
+				<th>Id</th>
+				<th>Name</th>
+				<th>Value</th>
+				<th>Description</th>
+				<th>Actions</th>
 			</tr>
-			
+			</thead>
+			<tbody>
 			<?php
 			foreach($action->getPermissions()->getPermissions() as $perm)
 			{
@@ -140,7 +144,7 @@ else if($action->view == GroupsAdministrationAction::$BrowsePermissions)
 				<?php
 			}
 			?>
-			
+			</tbody>
 		</table>
 	</div>
 </div>
@@ -175,7 +179,7 @@ else if($action->view == GroupsAdministrationAction::$EditPermissionForm)
 else if($action->view == GroupsAdministrationAction::$NewPermissionForm)
 {
 ?>
-<div class="container col-sm-8">
+<div class="container col-sm-8 col-sm-offset-1">
 	<h4>New Permission</h4>
 	<form method="post" action="groups.php?action=add_permission" role="form">
 		<div class="form-group col-sm-8">
@@ -192,6 +196,41 @@ else if($action->view == GroupsAdministrationAction::$NewPermissionForm)
 		</div>
 		<div class="form-group col-sm-8 col-sm-offset-1">
 			<button type="submit" class="btn btn-default">Add</button>
+		</div>
+	</form>
+</div>
+<?php
+}
+else if($action->view == GroupsAdministrationAction::$EditGroupForm)
+{
+?>
+<div class="container col-sm-8 col-sm-offset-1">
+	<h4>Edit Group</h4>
+	<form method="post" action="groups.php?action=save_group" role="form">
+		<input type="hidden" name="group_id" value="<?php echo $action->group->id; ?>" />
+		<div class="form-group col-sm-8">
+			<label for="group_name">Name</label>
+			<input type="text" name="group_name" id="group_name" value="<?php echo $action->group->name; ?>" class="form-control" />
+		</div>
+		<div class="form-group col-sm-8">
+			<h4>Permission(s)</h4>
+			<?php
+			foreach($action->getPermissions()->getPermissions() as $perm)
+			{
+			?>
+			<div class="checkbox">
+				<label>
+				<input type="checkbox" name="<?php echo $perm->name; ?>" <?php if($action->group->permissions->contains($perm)) { echo 'checked'; } ?>/>
+				<strong><?php echo $perm->name; ?></strong> : <?php echo $perm->description; ?>
+				</label>
+			</div>
+			<?php	
+			}
+			?>
+			
+		</div>
+		<div class="form-group col-sm-8 col-sm-offset-1">
+			<button type="submit" class="btn btn-default">Save</button>
 		</div>
 	</form>
 </div>

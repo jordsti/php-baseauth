@@ -4,6 +4,24 @@ require_once("database/DbConnection.php");
 require_once("classes/Group.php");
 class DbGroup
 {
+	public static function Update($group)
+	{
+		if(!$group->isNull())
+		{
+			$g_name = $group->name;
+			$g_id = $group->id;
+			
+			$con = new DbConnection();
+			
+			$query = "UPDATE groups SET group_name = ? WHERE group_id = ?";
+			$st = $con->prepare($query);
+			$st->bind_param("si", $g_name, $g_id);
+			$st->execute();
+			
+			$con->close();
+		}
+	}
+	
 	public static function Add($group_name)
 	{
 		$group = new Group();
@@ -94,8 +112,8 @@ class DbGroup
 		$query = "SELECT g.group_id, g.group_name, p.permission_id, p.permission_name, p.permission_value, p.permission_description
 			FROM users_groups ug
 			JOIN groups g ON g.group_id = ug.group_id
-			JOIN groups_permissions gp ON gp.group_id = ug.group_id
-			JOIN permissions p ON p.permission_id = gp.permission_id
+			LEFT JOIN groups_permissions gp ON gp.group_id = ug.group_id
+			LEFT JOIN permissions p ON p.permission_id = gp.permission_id
 			WHERE ug.user_id = ? ORDER BY g.group_id";
 
 		$st = $con->prepare($query);
@@ -181,6 +199,18 @@ class DbGroup
 		$st->execute();
 		$con->close();
 	}
+	
+	public static function RemovePermissions($g_id)
+	{
+		$con = new DbConnection();
+		
+		$query = "DELETE FROM groups_permissions WHERE group_id = ?";
+		
+		$st = $con->prepare($query);
+		$st->bind_param("i", $g_id);
+		$st->execute();
+		$con->close();
+	}
 
 	public static function AddPermission($g_id, $p_id)
 	{
@@ -222,9 +252,12 @@ class DbGroup
 			$group->id = $group_id;
 			$group->name = $g_name;
 		}
+		
+		$con->close();
 
 		if(!$group->isNull())
 		{
+			$con = new DbConnection();
 			$query = "SELECT p.permission_id, p.permission_name, p.permission_value, p.permission_description FROM groups_permissions gp JOIN permissions p ON gp.permission_id = p.permission_id WHERE gp.group_id = ?";
 			$st = $con->prepare($query);
 			$st->bind_param("i", $g_id);
@@ -243,9 +276,10 @@ class DbGroup
 				$perm = new Permission($data);
 				$group->permissions->add($perm);
 			}
+			
+			$con->close();
 		}
 
-		$con->close();
 
 		return $group;
 	}

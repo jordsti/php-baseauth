@@ -160,26 +160,37 @@ class UsersAdministrationAction extends BaseAction
 				{
 					if(!DbUser::IsUsernameOrEmailExists($username, $email))
 					{
-						//creating the user
-						$salt = User::GenerateSalt();
-						$hashType = 'sha256';
+						//username length check
+						$len_username = strlen($username);
 						
-						DbUser::Add($username, $salt, $hashType, $password, $firstName, $lastName, $email);
-						
-						$this->addAlert(Alert::CreateSuccess('Success', 'User added !'));
-						$this->reexecute(array('action' => 'browse'));
+						if($len_username >= $this->settings->getInt("username_min", 4) && $len_username <= $this->settings->getInt("username_max", 12))
+						{
+							//creating the user
+							$salt = User::GenerateSalt();
+							$hashType = $this->settings->getString('hash_type', 'sha256');
+							
+							DbUser::Add($username, $salt, $hashType, $password, $firstName, $lastName, $email);
+							
+							$this->addAlert(Alert::CreateSuccess('Success', 'User added !'));
+							$this->reexecute(array('action' => 'browse'));
+						}
+						else
+						{
+							$this->view = UsersAdministrationAction::$NewUserForm;
+							$this->addAlert(Alert::CreateWarning('Warning', 'Username must be between '.$this->settings->getInt("username_min", 4).' and '.$this->settings->getInt("username_max", 12).' characters.'));
+						}
 						
 					}
 					else
 					{
 						$this->view = UsersAdministrationAction::$NewUserForm;
-						$this->addAlert(Alert::CreateDanger('Warning', 'Username and/or Email already exists in the database.'));
+						$this->addAlert(Alert::CreateWarning('Warning', 'Username and/or Email already exists in the database.'));
 					}
 				}
 				else
 				{
 					$this->view = UsersAdministrationAction::$NewUserForm;
-					$this->addAlert(Alert::CreateDanger('Warning', 'Password mismatches.'));
+					$this->addAlert(Alert::CreateWarning('Warning', 'Password mismatches.'));
 				}
 			}
 			else
@@ -201,7 +212,7 @@ class UsersAdministrationAction extends BaseAction
 				if(strcmp($password, $password2) == 0)
 				{
 					$salt = User::GenerateSalt();
-					$hashType = 'sha256';
+					$hashType = $this->settings->getString('hash_type', 'sha256');
 					
 					DbUser::UpdateUserPassword($user_id, $hashType, $salt, $password);
 					$this->addAlert(Alert::CreateSuccess('Success', 'Password changed !'));

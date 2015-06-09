@@ -2,6 +2,8 @@
 
 require_once("classes/User.php");
 require_once("classes/Alert.php");
+require_once("classes/SettingContainer.php");
+require_once("database/DbSetting.php");
 require_once("database/DbUser.php");
 require_once("database/DbPermission.php");
 require_once("database/DbGroup.php");
@@ -28,6 +30,7 @@ class BaseAction
 	protected $constraints;
 	protected $alerts;
 	protected $alertRenderer;
+	protected $settings;
   
 	protected function getConstraint($c_name)
 	{
@@ -50,6 +53,7 @@ class BaseAction
 		}
 		
 		$this->alerts = array();
+		$_SESSION['alerts'] = array();
 	}
 	
 	public function getPermissions()
@@ -89,6 +93,12 @@ class BaseAction
 		$this->permissions = new PermissionContainer($perms);
 	}
 	
+	protected function reloadSettings()
+	{
+		$settings = DbSetting::GetAll();
+		$this->settings = new SettingContainer($settings);
+	}
+	
 	public function clearAlerts()
 	{
 		$_SESSION['alerts'] = array();
@@ -119,6 +129,15 @@ class BaseAction
 		else
 		{
 			$no_redirect = $no_redirect->value;
+		}
+
+		//loading settings
+		$settings = DbSetting::GetAll();
+		$this->settings = new SettingContainer($settings);
+		
+		if($this->settings->size() == 0)
+		{
+			$this->initSettings();
 		}
 
 		if(isset($_SESSION['user_id']))
@@ -175,6 +194,20 @@ class BaseAction
 		}
 
 
+	}
+	
+	protected function initSettings()
+	{
+		$this->settings = new SettingContainer();
+		
+		//hash type setting
+		$hashtype = new Setting();
+		$hashtype->name = "hash_type";
+		$hashtype->value = "sha256";
+		
+		$this->settings->add($hashtype);
+		
+		DbSetting::Save($this->settings);
 	}
 
 	public function mustHavePermission($perm_name)

@@ -18,12 +18,18 @@ if($action->isLogged())
   <li><a href="users.php">Users</a></li>
   <?php
   }  
-?>
-<?php
+
   if($action->testPermission("manage_groups"))
   {
   ?>
   <li><a href="groups.php">Groups</a></li>
+  <?php
+  }  
+  
+   if($action->testPermission("manage_settings"))
+  {
+  ?>
+  <li><a href="settings.php">Settings</a></li>
   <?php
   }  
 ?>

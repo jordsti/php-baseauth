@@ -194,7 +194,6 @@ class GroupsAdministrationAction extends BaseAction
 				
 				foreach($permissions as $perm)
 				{
-					echo $perm->name;
 					if(isset($_POST[$perm->name]))
 					{
 						$value = $_POST[$perm->name];

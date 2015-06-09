@@ -33,17 +33,17 @@ class LoginAction extends BaseAction {
 				if($user->testPassword($password))
 				{
 					$_SESSION['user_id'] = $user->id;
-
+					$this->pushAlert(Alert::CreateSuccess('Success', 'You\'re now connected with success.'));
 					header('location: index.php');
 				}
 				else
 				{
-					echo "Password mismatch";
+					$this->addAlert(Alert::CreateDanger('Error', 'Invalid Username and/or password.'));
 				}
 			}
 			else
 			{
-				echo "Invalid user";
+				$this->addAlert(Alert::CreateDanger('Error', 'Invalid Username and/or password.'));
 			}
 		}
 	}

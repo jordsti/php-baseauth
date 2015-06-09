@@ -58,7 +58,7 @@ if($action->view == GroupsAdministrationAction::$BrowseGroups)
 						</ul>
 					</td>
 					<td>
-						<button type="button" class="btn btn-default" href="#">Delete</button>
+						<a class="btn btn-default" id="group_delete_<?php echo $group->id; ?>" onclick="deleteGroupPrompt(<?php echo $group->id; ?>);" ondblclick="deleteGroup(<?php echo $group->id; ?>);">Delete</a>
 						<a class="btn btn-default" href="groups.php?action=edit_group&group_id=<?php echo $group->id; ?>">Edit</a>
 					</td>
 				</tr>
@@ -137,7 +137,7 @@ else if($action->view == GroupsAdministrationAction::$BrowsePermissions)
 					<td><?php echo $perm->value; ?></td>
 					<td><?php echo $perm->description; ?></td>
 					<td>
-						<button type="button" class="btn btn-default" href="#">Delete</button>
+						<a class="btn btn-default" onclick="deletePermissionPrompt(<?php echo $perm->id; ?>);" ondblclick="deletePermission(<?php echo $perm->id; ?>);" id="permission_delete_<?php echo $perm->id; ?>">Delete</a>
 						<a class="btn btn-default" href="groups.php?action=edit_permission&perm_id=<?php echo $perm->id; ?>">Edit</a>
 					</td>
 				</tr>

@@ -33,8 +33,8 @@ if($action->isLogged())
   <?php
   }  
 ?>
-
-  <li><a href="logout.php">Log out</a></li>
+	<li><a href="my_account.php">My Account</a></li>
+	<li><a href="logout.php">Log out</a></li>
 <?php
 }
 

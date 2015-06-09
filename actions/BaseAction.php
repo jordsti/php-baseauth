@@ -103,6 +103,11 @@ class BaseAction
 	{
 		$_SESSION['alerts'] = array();
 	}
+	
+	protected function reloadUser()
+	{
+		$this->user = DbUser::GetById($this->user->id);
+	}
   
 	public function __construct($constraints=array())
 	{

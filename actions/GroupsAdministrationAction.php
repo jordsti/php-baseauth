@@ -227,6 +227,32 @@ class GroupsAdministrationAction extends BaseAction
 			
 			$this->reexecute(array('action' => 'browse'));
 		}
+		else if(strcmp($action, 'delete_group') == 0)
+		{
+			if(isset($_GET['group_id']))
+			{
+				$group_id = $_GET['group_id'];
+				
+				DbGroup::Delete($group_id);
+				
+				$this->addAlert(Alert::CreateSuccess('Success', 'Group deleted.'));
+			}
+			
+			$this->reexecute(array('action' => 'browse'));
+		}
+		else if(strcmp($action, 'delete_permission') == 0)
+		{
+			if(isset($_GET['permission_id']))
+			{
+				$perm_id = $_GET['permission_id'];
+				
+				DbPermission::Delete($perm_id);
+				$this->reloadPermissions();
+				$this->addAlert(Alert::CreateSuccess('Success', 'Permission deleted.'));
+			}
+			
+			$this->reexecute(array('action' => 'permissions'));
+		}
 	}
 
 }

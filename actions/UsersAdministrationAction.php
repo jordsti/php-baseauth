@@ -251,6 +251,21 @@ class UsersAdministrationAction extends BaseAction
 				$this->reexecute(array('action' => 'browse'));
 			}
 		}
+		else if(strcmp($action, 'delete_user') == 0)
+		{
+			if(isset($_GET['user_id']))
+			{
+				$user_id = $_GET['user_id'];
+				
+				DbUser::Delete($user_id);
+				//maybe log this into a file..
+				//todo
+				
+				$this->addAlert(Alert::CreateSuccess('Success', 'User deleted.'));
+			}
+			
+			$this->reexecute(array('action' => 'browse'));
+		}
 	}
 	
 	

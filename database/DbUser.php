@@ -5,6 +5,19 @@ require_once("database/DbConnection.php");
 
 class DbUser
 {
+	public static function Delete($user_id)
+	{
+		$con = new DbConnection();
+		
+		$query = "DELETE FROM users WHERE user_id = ?";
+		
+		$st = $con->prepare($query);
+		$st->bind_param("i", $user_id);
+		$st->execute();
+		
+		$con->close();
+	}
+	
 	public static function Add($username, $salt, $hashType, $password, $firstName, $lastName, $email)
 	{
 		$con = new DbConnection();

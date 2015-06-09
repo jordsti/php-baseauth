@@ -178,6 +178,39 @@ class DbGroup
 		return $permissions;
 	}
 
+	public static function Delete($g_id)
+	{
+		DbGroup::RemoveAllPermissions($g_id);
+		DbGroup::RemoveAllUsers($g_id);
+		
+		$con = new DbConnection();
+		$query = "DELETE FROM groups WHERE group_id = ?";
+		$st = $con->prepare($query);
+		$st->bind_param("i", $g_id);
+		$st->execute();
+		$con->close();
+	}
+
+	public static function RemoveAllPermissions($g_id)
+	{
+		$con = new DbConnection();
+		$query = "DELETE FROM groups_permissions WHERE group_id = ?";
+		$st = $con->prepare($query);
+		$st->bind_param("i", $g_id);
+		$st->execute();
+		$con->close();
+	}
+
+	public static function RemoveAllUsers($g_id)
+	{
+		$con = new DbConnection();
+		$query = "DELETE FROM users_groups WHERE group_id = ?";
+		$st = $con->prepare($query);
+		$st->bind_param("i", $g_id);
+		$st->execute();
+		$con->close();
+	}
+
 	public static function RemoveUser($g_id, $u_id)
 	{
 		$con = new DbConnection();

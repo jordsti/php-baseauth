@@ -119,9 +119,20 @@ class DbPermission
 		}
 
 	}
+	
+	public static function RemoveFromAllGroup($perm_id)
+	{
+		$con = new DbConnection();
+		$query = "DELETE FROM groups_permissions WHERE permission_id = ?";
+		$st = $con->prepare($query);
+		$st->bind_param("i", $perm_id);
+		$st->execute();
+		$con->close();
+	}
   
 	public static function Delete($p_id)
 	{
+		DbPermission::RemoveFromAllGroup($p_id);
 		$con = new DbConnection();
 		$query = "DELETE FROM permissions WHERE permission_id = ?";
 		$st = $con->prepare($query);

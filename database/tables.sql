@@ -47,6 +47,15 @@ CREATE TABLE IF NOT EXISTS `settings` (
 	PRIMARY KEY(`setting_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+CREATE TABLE IF NOT EXISTS `news` (
+	`news_id` INT(25) NOT NULL AUTO_INCREMENT,
+	`news_title` VARCHAR(255) NOT NULL,
+	`news_content` TEXT NOT NULL,
+	`news_posted_on` INT(25) NOT NULL,
+	`user_id` INT(25) NOT NULL,
+	PRIMARY KEY(`news_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
 
 -- inserting default settings #
 INSERT INTO `settings` (`setting_id`, `setting_name`, `setting_value`) VALUES (1, 'hash_type', 'sha256');
@@ -60,11 +69,20 @@ INSERT INTO `permissions` (`permission_id`, `permission_name`, `permission_value
 INSERT INTO `permissions` (`permission_id`, `permission_name`, `permission_value`, `permission_description`) VALUES (2, 'manage_groups', 1, 'Create, delete and update groups');
 INSERT INTO `permissions` (`permission_id`, `permission_name`, `permission_value`, `permission_description`) VALUES (3, 'manage_permissions', 2, 'Create, delete and update permissions');
 INSERT INTO `permissions` (`permission_id`, `permission_name`, `permission_value`, `permission_description`) VALUES (4, 'manage_settings', 3, 'Create, delete and update settings');
+INSERT INTO `permissions` (`permission_id`, `permission_name`, `permission_value`, `permission_description`) VALUES (5, 'manage_news', 4, 'Create, delete and update news');
+INSERT INTO `permissions` (`permission_id`, `permission_name`, `permission_value`, `permission_description`) VALUES (6, 'view_news', 5, 'View news');
+
 -- Creating the Admin group #
 INSERT INTO `groups` (`group_id`, `group_name`) VALUES (1, 'Admin');
 INSERT INTO `groups_permissions` (`group_id`, `permission_id`) VALUES (1, 1);
 INSERT INTO `groups_permissions` (`group_id`, `permission_id`) VALUES (1, 2);
 INSERT INTO `groups_permissions` (`group_id`, `permission_id`) VALUES (1, 3);
 INSERT INTO `groups_permissions` (`group_id`, `permission_id`) VALUES (1, 4);
+INSERT INTO `groups_permissions` (`group_id`, `permission_id`) VALUES (1, 5);
+INSERT INTO `groups_permissions` (`group_id`, `permission_id`) VALUES (1, 6);
+
+INSERT INTO `groups` (`group_id`, `group_name`) VALUES (2, 'Users');
+INSERT INTO `groups_permissions` (`group_id`, `permission_id`) VALUES (2, 6);
+
 -- Adding the admin to the admin group #
 INSERT INTO `users_groups` (`user_id`, `group_id`) VALUES (1, 1);

@@ -1,4 +1,29 @@
 
+function deleteNews(newsId)
+{
+	var linkId = 'news_delete_' + newsId;
+	
+	var deleteLink = document.getElementById(linkId);
+	
+	if(deleteLink)
+	{
+		deleteLink.innerHTML = "DELETE";
+		deleteLink.setAttribute('href', 'news.php?action=delete_news&news_id='+newsId);
+	}
+}
+
+
+function deleteNewsPrompt(newsId)
+{
+	var linkId = 'news_delete_' + newsId;
+	
+	var deleteLink = document.getElementById(linkId);
+	if(deleteLink)
+	{
+		deleteLink.innerHTML = 'Are you sure ? (Double-Click)';
+	}
+}
+
 function deletePermission(permissionId)
 {
 	var linkId = 'permission_delete_' + permissionId;

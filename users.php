@@ -1,4 +1,5 @@
 <?php
+  require_once("classes/TimeStamp.php");
   require_once("actions/UsersAdministrationAction.php");
   $action = new UsersAdministrationAction();
   $action->execute();
@@ -34,6 +35,7 @@ if($action->view == UsersAdministrationAction::$BrowseUsers)
 			<?php
 				foreach($action->users as $u)
 				{
+					$timeStamp = new TimeStamp($u->createdOn);
 				?>
 				<tr>
 					<td><?php echo $u->id; ?></td>
@@ -41,7 +43,7 @@ if($action->view == UsersAdministrationAction::$BrowseUsers)
 					<td><?php echo $u->firstName; ?></td>
 					<td><?php echo $u->lastName; ?></td>
 					<td><?php echo $u->email; ?></td>
-					<td><?php echo $u->createdOn; ?></td>
+					<td><?php echo $timeStamp->timeAgo(); ?></td>
 					<td><a class="btn btn-default" ondblclick="deleteUser(<?php echo $u->id; ?>);" onclick="deleteUserPrompt(<?php echo $u->id; ?>);" id="user_delete_<?php echo $u->id; ?>">Delete</a><a class="btn btn-default" href="users.php?action=edit_user&user_id=<?php echo $u->id; ?>">Edit</a></td>
 				</tr>
 				<?php
@@ -184,7 +186,7 @@ else if($action->view == UsersAdministrationAction::$NewUserForm)
 				</div>
 				<div class="form-group col-sm-8">
 					<label for="password2">Password (Confirmation)</label>
-					<input class="form-control" type="password2" placeholder="Password" name="password2" id="password2" />
+					<input class="form-control" type="password" placeholder="Password (Confirm)" name="password2" id="password2" />
 				</div>
 				<div class="form-group col-sm-8">
 					<label for="first_name">First Name</label>

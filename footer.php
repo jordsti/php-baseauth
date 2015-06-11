@@ -3,7 +3,7 @@
 		<div class="container">
 			<div class="row">
 				<div class="footer col-sm-10">
-					<a href="https://github.com/jordsti/invoice-master">InvoiceMaster</a>
+					<a href="https://github.com/jordsti/php-baseauth">PHP-BaseAuth</a>
 				</div>
 			</div>
 		</div>

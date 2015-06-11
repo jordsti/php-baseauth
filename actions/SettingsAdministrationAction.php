@@ -59,5 +59,24 @@ class SettingsAdministrationAction extends BaseAction
 			
 			$this->reexecute(array('action' => 'browse'));
 		}
+		else if(strcmp($action, 'save_settings') == 0)
+		{
+			$settings = DbSetting::GetAll();
+			
+			foreach($settings as $setting)
+			{
+				if(isset($_POST['setting_'.$setting->id]))
+				{
+					$setting->value = $_POST['setting_'.$setting->id];
+				}
+			}
+			
+			
+			$container = new SettingContainer($settings);
+			DbSetting::Save($container);
+			$this->addAlert(Alert::CreateSuccess('Success', 'Settings saved.'));
+			$this->reloadSettings();
+			$this->reexecute(array('action' => 'browse'));
+		}
 	}
 }

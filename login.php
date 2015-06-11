@@ -5,6 +5,7 @@ $action = new LoginAction();
 $action->execute();
 
 require_once("header.php");
+require_once("menu.php");
 
 ?>
     <div class="container col-sm-4">
@@ -28,6 +29,15 @@ require_once("header.php");
 	  </div>
 	</div>
       </form>
+      <?php
+      if($action->isSignUpOpen())
+      {
+		  ?>
+		  <a href="signup.php">Don't have an account, create one !</a>
+		  <?php
+	  }
+      ?>
+      
     </div>
 
 <?php

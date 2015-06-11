@@ -3,6 +3,7 @@
 require_once("classes/User.php");
 require_once("classes/Alert.php");
 require_once("classes/SettingContainer.php");
+require_once("classes/SettingFile.php");
 require_once("database/DbSetting.php");
 require_once("database/DbUser.php");
 require_once("database/DbPermission.php");
@@ -23,6 +24,9 @@ class ActionConstraint {
 
 class BaseAction
 {
+	public static $AdminUserCreationMethod = "admin_creation";
+	public static $OpenUserCreationMethod = "open";
+	
 	protected $user;
 	protected $permissions;
 	protected $userPermissions;
@@ -31,6 +35,7 @@ class BaseAction
 	protected $alerts;
 	protected $alertRenderer;
 	protected $settings;
+	protected $accountCreationMethod;
   
 	protected function getConstraint($c_name)
 	{
@@ -203,16 +208,42 @@ class BaseAction
 	
 	protected function initSettings()
 	{
-		$this->settings = new SettingContainer();
-		
+		//$this->settings = new SettingContainer();
+		//put that into a SettingFile for import at intial runtime
 		//hash type setting
-		$hashtype = new Setting();
+		/*$hashtype = new Setting();
 		$hashtype->name = "hash_type";
 		$hashtype->value = "sha256";
 		
-		$this->settings->add($hashtype);
+		$user_min = new Setting();
+		$user_min->name = "username_min";
+		$user_min->value = "4";
 		
-		DbSetting::Save($this->settings);
+		$user_max = new Setting();
+		$user_max->name = "username_max";
+		$user_max->value = "12";
+		
+		$signup_method = new Setting();
+		$signup_method->name = "signup_method";
+		$signup_method->value = "admin_creation";
+		
+		$this->settings->add($hashtype);
+		$this->settings->add($user_min);
+		$this->settings->add($user_max);
+		$this->settings->add($signup_method);*/
+		
+		$settingFile = new SettingFile('actions/initial_settings.conf');
+		
+		$settingFile->readFile();
+		
+		$settings = $settingFile->getContainer();
+		
+		DbSetting::Save($settings);
+	}
+	
+	public function isSignUpOpen()
+	{
+		return (strcmp($this->settings->getString('signup_method', BaseAction::$AdminUserCreationMethod), BaseAction::$OpenUserCreationMethod) == 0);
 	}
 
 	public function mustHavePermission($perm_name)

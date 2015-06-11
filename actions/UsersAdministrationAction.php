@@ -171,6 +171,20 @@ class UsersAdministrationAction extends BaseAction
 							
 							DbUser::Add($username, $salt, $hashType, $password, $firstName, $lastName, $email);
 							
+							$default_group = $this->settings->getString('default_user_group', 'Users');
+							
+							$group = DbGroup::GetByName($default_group);
+							
+							if(!$group->isNull())
+							{
+								$user = DbUser::GetByUsername($username);
+								if(!$user->isNull())
+								{
+									DbGroup::AddUser($group->id, $user->id);
+								}
+							}
+							
+							
 							$this->addAlert(Alert::CreateSuccess('Success', 'User added !'));
 							$this->reexecute(array('action' => 'browse'));
 						}

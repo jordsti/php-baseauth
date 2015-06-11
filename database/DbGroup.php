@@ -4,6 +4,29 @@ require_once("database/DbConnection.php");
 require_once("classes/Group.php");
 class DbGroup
 {
+	
+	public static function GetByName($group_name)
+	{
+		$group = new Group();
+		$con = new DbConnection();
+		
+		$query = "SELECT group_id, group_name FROM groups WHERE group_name = ?";
+		$st = $con->prepare($query);
+		$st->bind_param("s", $group_name);
+		$st->bind_result($g_id, $g_name);
+		$st->execute();
+		
+		if($st->fetch())
+		{
+			$group->id = $g_id;
+			$group->name = $g_name;
+		}
+		
+		$con->close();
+		
+		return $group;
+	}
+	
 	public static function Update($group)
 	{
 		if(!$group->isNull())
